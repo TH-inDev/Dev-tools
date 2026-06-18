@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Swiss Army Knife</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+    </script>
+    <style>
+        /* Smooth view transitions */
+        .tab-view {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .tab-view.hidden {
+            display: none;
+            opacity: 0;
+        }
+        /* Custom scrollbar elimination */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-mono selection:bg-cyan-500/30 selection:text-cyan-300">
+
+    <div id="premium-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-200 opacity-0">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative transform scale-95 transition-transform duration-200">
+            <button onclick="closePremiumModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 text-lg">&times;</button>
+            <div class="text-center space-y-4">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cyan-950 border border-cyan-700/50 text-cyan-400 text-xl animate-pulse">⚡</div>
+                <h3 class="text-xl font-bold tracking-wider text-cyan-400" id="modal-title">Unlock Premium Feature</h3>
+                <p class="text-xs text-slate-400 leading-relaxed" id="modal-desc">This premium utility is part of the DEV_TOOLKIT pro extensions suite designed to accelerate engineering workflows.</p>
+                
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-left space-y-3">
+                    <div class="flex items-start gap-2.5 text-xs">
+                        <span class="text-cyan-400">✨</span>
+                        <div><strong class="text-slate-200">Pro License ($4.99 One-Time):</strong> Permanent access to file exports, expanded grids, conversion panels, and local persistence.</div>
+                    </div>
+                    <div class="flex items-start gap-2.5 text-xs">
+                        <span class="text-indigo-400">🚀</span>
+                        <div><strong class="text-slate-200">Automation Sub ($1.99/mo):</strong> Unlocks chain macros, macro script builders, and multi-frame animation layers.</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <a href="#" target="_blank" class="bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white font-bold text-xs py-3 rounded-lg transition-colors text-center shadow-lg shadow-cyan-950/50">Buy Pro ($4.99)</a>
+                    <a href="#" target="_blank" class="bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 font-bold text-xs py-3 rounded-lg transition-colors border border-indigo-700/50 text-center">Subscribe ($1.99)</a>
+                </div>
+                <p class="text-[10px] text-slate-500">Instant activation via Lemon Squeezy secure checkout handles access keys automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <h1 class="text-xl font-bold tracking-wider text-cyan-400 flex items-center gap-2">
+                <span>⚡</span> DEV_TOOLKIT v1.0
+            </h1>
+            <nav class="flex overflow-x-auto max-w-full no-scrollbar gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                <button onclick="switchTab('hex')" id="tab-hex" class="tab-btn px-3 py-1.5 text-xs rounded-md whitespace-nowrap bg-cyan-600 text-white font-bold transition-all">Hex Visualizer</button>
+                <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-3 py-1.5 text-xs rounded-md whitespace-nowrap text-slate-400 hover:text-slate-200 transition-all">Data Pipeline</button>
+                <button onclick="switchTab('pixel')" id="tab-pixel" class="tab-btn px-3 py-1.5 text-xs rounded-md whitespace-nowrap text-slate-400 hover:text-slate-200 transition-all">Pixel Matrix</button>
+                <button onclick="switchTab('mermaid')" id="tab-mermaid" class="tab-btn px-3 py-1.5 text-xs rounded-md whitespace-nowrap text-slate-400 hover:text-slate-200 transition-all">Flowchart Editor</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+        
+        <section id="view-hex" class="tab-view block opacity-100 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6">
+                <h2 class="text-lg font-bold text-cyan-400 mb-2">Hex & Packet Structural Visualizer</h2>
+                <p class="text-xs text-slate-400 mb-4">Paste raw hexadecimal data strings to map and color-code structural offsets instantly.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 space-y-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Raw Hex Stream</label>
+                            <textarea id="hex-input" class="w-full h-32 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-emerald-400 focus:outline-none focus:border-cyan-500 placeholder-slate-700" placeholder="7f454c460201010000000000000000000002003e00010000"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Header Size (Bytes)</label>
+                                <input type="number" id="hex-header-len" value="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Flags Size (Bytes)</label>
+                                <input type="number" id="hex-flag-len" value="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-center">
+                            </div>
+                        </div>
+                        <button onclick="parseHexData()" class="w-full bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 font-bold text-sm py-2.5 rounded-lg transition-colors">Parse Hex Structure</button>
+                    </div>
+                    
+                    <div class="lg:col-span-2 flex flex-col justify-between bg-slate-950 border border-slate-800 rounded-lg p-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-3">Structured Field Map</label>
+                            <div id="hex-visual-output" class="flex flex-wrap gap-1 font-mono text-base md:text-lg mb-4 tracking-wide leading-relaxed p-3 bg-slate-900/50 rounded border border-slate-800/50 min-h-16">
+                                <span class="text-slate-600 text-sm">Parsed interactive byte arrays will appear here...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-900/80 border border-slate-800/60 rounded-lg p-3 mb-4 min-h-12 flex items-center justify-between">
+                            <div class="text-xs text-slate-400" id="hex-decoder-panel">
+                                <span class="text-slate-600">Hover over a parsed block chunk to analyze scalar offset fields...</span>
+                            </div>
+                            <button onclick="triggerPremium('Hex History Slot persistence models', 'Pro')" class="text-[10px] text-cyan-400 border border-cyan-800/40 bg-cyan-950/30 px-2 py-1 rounded hover:bg-cyan-950/80 transition-colors">💾 Save Struct</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="p-2.5 bg-indigo-950/40 border border-indigo-800/50 rounded-md"><span class="inline-block w-3 h-3 bg-indigo-500 rounded-sm mr-1.5 align-middle"></span>Header Block</div>
+                            <div class="p-2.5 bg-amber-950/40 border border-amber-800/50 rounded-md"><span class="inline-block w-3 h-3 bg-amber-500 rounded-sm mr-1.5 align-middle"></span>Flags / Context</div>
+                            <div class="p-2.5 bg-emerald-950/40 border border-emerald-800/50 rounded-md"><span class="inline-block w-3 h-3 bg-emerald-500 rounded-sm mr-1.5 align-middle"></span>Remaining Payload</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-pipeline" class="tab-view hidden opacity-0 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6">
+                <h2 class="text-lg font-bold text-cyan-400 mb-2">Multi-Step Data Cleaning Pipeline</h2>
+                <p class="text-xs text-slate-400 mb-4">Run fast, chained cleanups on messy text logs, lists, or structured data batches.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Raw Target Input</label>
+                        <textarea id="pipeline-input" class="w-full h-48 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 placeholder-slate-700" placeholder="User text data, messy logs, duplicate lines, test@email.com, user2@domain.com..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Processed Pipeline Output</label>
+                        <textarea id="pipeline-output" readonly class="w-full h-48 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-emerald-400 focus:outline-none cursor-not-allowed placeholder-slate-800" placeholder="Cleaned workspace output status..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-slate-950 border border-slate-800 rounded-lg space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-800/60 pb-2">
+                        <span class="block text-xs text-slate-400 uppercase font-bold tracking-wider">Pipeline Processing Steps:</span>
+                        <button onclick="triggerPremium('Chained Macro Sequencer automation tracks', 'Automation')" class="text-[10px] text-indigo-400 hover:underline">⚙️ Save Multi-Step Chain Macro</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="runPipelineStep('upper')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-700 transition-colors">↑ UPPERCASE</button>
+                        <button onclick="runPipelineStep('lower')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-700 transition-colors">↓ lowercase</button>
+                        <button onclick="runPipelineStep('dedupe')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-700 transition-colors">✂ Remove Duplicates</button>
+                        <button onclick="runPipelineStep('emails')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-700 transition-colors">📧 Extract Emails</button>
+                        <button onclick="runPipelineStep('json')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-700 transition-colors">{} Wrap JSON Array</button>
+                        
+                        <button onclick="runPipelineStep('base64')" class="bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs px-3 py-2 rounded border border-cyan-800/40 transition-colors">✨ Base64 Vector Toggle (Pro)</button>
+                        <button onclick="runPipelineStep('ips')" class="bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs px-3 py-2 rounded border border-cyan-800/40 transition-colors">✨ Extract IPv4 Address (Pro)</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-pixel" class="tab-view hidden opacity-0 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                    <h2 class="text-lg font-bold text-cyan-400">Retro Pixel Matrix Code Generator</h2>
+                    
+                    <div class="flex items-center gap-1.5 bg-slate-950 p-1 border border-slate-800 rounded-lg">
+                        <span class="text-[10px] uppercase text-slate-500 font-bold px-1.5">Canvas:</span>
+                        <button onclick="changeMatrixSize(8)" id="btn-size-8" class="text-[10px] px-2 py-1 rounded bg-cyan-600 text-white font-bold transition-all">8x8</button>
+                        <button onclick="changeMatrixSize(16)" id="btn-size-16" class="text-[10px] px-2 py-1 rounded text-slate-400 hover:text-slate-200 transition-all">16x16 (Pro)</button>
+                        <button onclick="changeMatrixSize(32)" id="btn-size-32" class="text-[10px] px-2 py-1 rounded text-slate-400 hover:text-slate-200 transition-all">32x32 (Pro)</button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Toggle pixel points to dynamically generate standard byte hex arrays for embedded displays and custom hardware setups.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="flex flex-col items-center justify-center p-4 bg-slate-950 border border-slate-800 rounded-lg">
+                        <div id="pixel-grid" class="grid grid-cols-8 gap-1 w-full max-w-sm aspect-square max-h-[320px] overflow-auto"></div>
+                        <div class="flex gap-2 w-full mt-4 max-w-sm">
+                            <button onclick="clearPixelMatrix()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs py-2 rounded transition-all">Clear Layout</button>
+                            <button onclick="triggerPremium('Multi-frame animation timeline compilers', 'Automation')" class="flex-1 bg-indigo-950/40 border border-indigo-800/40 text-indigo-300 text-xs py-2 rounded transition-all">🎞️ Add Frame (Sub)</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs uppercase tracking-wider text-slate-400">C-Language Hex Array Payload</label>
+                                <button onclick="triggerPremium('Binary Array Exporter compilers', 'Pro')" class="text-[10px] text-cyan-400 hover:underline">📥 Download .bin</button>
+                            </div>
+                            <div class="relative">
+                                <pre id="pixel-output-c" class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-amber-400 overflow-x-auto min-h-12 font-mono">static const uint8_t icon_bmp[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Binary Layout Visualization</label>
+                            <pre id="pixel-output-bin" class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-[10px] md:text-xs text-slate-500 overflow-x-auto tracking-widest leading-none font-mono">00000000&#10;00000000&#10;00000000&#10;00000000&#10;00000000&#10;00000000&#10;00000000&#10;00000000</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-mermaid" class="tab-view hidden opacity-0 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6">
+                <h2 class="text-lg font-bold text-cyan-400 mb-2">Live Indented Flowchart Compiler</h2>
+                <p class="text-xs text-slate-400 mb-4">Draft simple system architecture or data flows. Use clean, direct Mermaid syntax to construct graphic documentation layouts.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400">Mermaid Syntax Pipeline Workspace</label>
+                            <button onclick="triggerPremium('Cloud-hosted enterprise diagram templates', 'Automation')" class="text-[10px] text-indigo-400 hover:underline">📋 Load Architecture Blueprint</button>
+                        </div>
+                        <textarea id="mermaid-input" oninput="compileFlowchart()" class="w-full h-64 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-indigo-300 focus:outline-none focus:border-cyan-500 font-mono" style="tab-size: 4;">graph TD
+    A[Raw Data String] --> B(Hex Parser Engine)
+    B --> C{Verify Size?}
+    C -->|Valid| D[Color Output Render]
+    C -->|Invalid| E[Error Mask]</textarea>
+                        <div class="flex justify-between items-center text-[11px] text-slate-500">
+                            <span>Auto-recompiles on structural changes</span>
+                            <button onclick="compileFlowchart()" class="text-cyan-500 hover:underline">Force Manual Render</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400">Rendered System Chart Map</label>
+                            
+                            <div class="flex items-center gap-2">
+                                <button onclick="triggerPremium('Vector SVG Graphic downstreams', 'Pro')" class="text-[10px] bg-slate-950 border border-slate-800 px-2 py-1 rounded text-cyan-400 hover:border-slate-700 transition-all">💾 Export SVG</button>
+                                <button onclick="triggerPremium('High-Res PNG Asset exporters', 'Pro')" class="text-[10px] bg-slate-950 border border-slate-800 px-2 py-1 rounded text-cyan-400 hover:border-slate-700 transition-all">💾 Export PNG</button>
+                            </div>
+                        </div>
+                        <div id="mermaid-render-target" class="bg-slate-950 border border-slate-800 rounded-lg p-4 flex items-center justify-center min-h-64 overflow-auto rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- VIEWPORT / TAB SWITCHING LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(view => {
+                view.classList.add('hidden');
+                view.classList.remove('opacity-100');
+                view.classList.add('opacity-0');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-600', 'text-white', 'font-bold');
+                btn.classList.add('text-slate-400');
+            });
+
+            const nextView = document.getElementById(`view-${tabId}`);
+            nextView.classList.remove('hidden');
+            setTimeout(() => {
+                nextView.classList.remove('opacity-0');
+                nextView.classList.add('opacity-100');
+            }, 20);
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('bg-cyan-600', 'text-white', 'font-bold');
+            activeBtn.classList.remove('text-slate-400');
+
+            if(tabId === 'mermaid') {
+                compileFlowchart();
+            }
+        }
+
+        // --- GLOBAL MONETIZATION CONTROLLERS ---
+        function triggerPremium(featureName, modelTier) {
+            const modal = document.getElementById('premium-modal');
+            document.getElementById('modal-title').textContent = `Unlock ${featureName}`;
+            document.getElementById('modal-desc').textContent = `The requested vector operation runs outside the baseline utility grid. Activate your ${modelTier} tier connection instantly to drop output boundaries.`;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closePremiumModal() {
+            const modal = document.getElementById('premium-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 20);
+        }
+
+        // --- MODULE 1 ENGINE: HEX STRUCTURAL PARSER & INTERACTIVE HOVER DECODER ---
+        function parseHexData() {
+            const input = document.getElementById('hex-input').value.replace(/[^0-9a-fA-F]/g, '');
+            const outputArea = document.getElementById('hex-visual-output');
+            const headLen = parseInt(document.getElementById('hex-header-len').value) * 2;
+            const flagLen = parseInt(document.getElementById('hex-flag-len').value) * 2;
+
+            if(!input) {
+                outputArea.innerHTML = '<span class="text-rose-500 text-xs">Error: No hexadecimal input detected.</span>';
+                return;
+            }
+
+            outputArea.innerHTML = '';
+            
+            for (let i = 0; i < input.length; i += 2) {
+                const byte = input.substr(i, 2).toUpperCase().padEnd(2, '0');
+                const span = document.createElement('span');
+                span.textContent = byte + ' ';
+                span.className = "px-1 rounded font-bold transition-all duration-150 cursor-crosshair select-none ";
+
+                let blockName = "Remaining Payload";
+                if (i < headLen) {
+                    span.className += "bg-indigo-950 text-indigo-300 border border-indigo-700/60 hover:bg-indigo-900";
+                    blockName = "Header Block";
+                } else if (i < headLen + flagLen) {
+                    span.className += "bg-amber-950 text-amber-300 border border-amber-700/60 hover:bg-amber-900";
+                    blockName = "Flags / Context Block";
+                } else {
+                    span.className += "bg-emerald-950 text-emerald-300 border border-emerald-700/60 hover:bg-emerald-900";
+                }
+
+                // Interactive Realtime Decoders on hover
+                const decimalVal = parseInt(byte, 16);
+                const asciiVal = (decimalVal >= 32 && decimalVal <= 126) ? String.fromCharCode(decimalVal) : '.';
+                const currentOffset = "0x" + (i / 2).toString(16).toUpperCase().padStart(4, '0');
+
+                span.addEventListener('mouseenter', () => {
+                    document.getElementById('hex-decoder-panel').innerHTML = 
+                        `<span class="text-cyan-400 font-bold">[${blockName}]</span> Offset: <span class="text-slate-200 font-bold">${currentOffset}</span> | Dec: <span class="text-emerald-400 font-bold">${decimalVal}</span> | Char: <span class="text-amber-400 font-bold">'${asciiVal}'</span>`;
+                });
+                
+                outputArea.appendChild(span);
+            }
+        }
+
+        // --- MODULE 2 ENGINE: DATA TRANSFORM PIPELINES ---
+        function runPipelineStep(operation) {
+            const inputField = document.getElementById('pipeline-input');
+            const outputField = document.getElementById('pipeline-output');
+            let data = inputField.value;
+
+            if (!data.trim()) {
+                outputField.value = "Warning: Input field target execution vector is currently empty.";
+                return;
+            }
+
+            // Paywall intercepts for custom advanced processors
+            if (operation === 'base64') {
+                triggerPremium('Base64 Encoding/Decoding pipeline layers', 'Pro');
+                return;
+            }
+            if (operation === 'ips') {
+                triggerPremium('IP Address Regular Expression extractors', 'Pro');
+                return;
+            }
+
+            switch(operation) {
+                case 'upper': data = data.toUpperCase(); break;
+                case 'lower': data = data.toLowerCase(); break;
+                case 'dedupe':
+                    const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    data = [...new Set(lines)].join('\n');
+                    break;
+                case 'emails':
+                    const matches = data.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+                    data = matches ? matches.join('\n') : "--- No valid Email vectors detected ---";
+                    break;
+                case 'json':
+                    const jsonLines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    data = JSON.stringify(jsonLines, null, 4);
+                    break;
+            }
+            outputField.value = data;
+        }
+
+        // --- MODULE 3 ENGINE: ADAPTIVE CANVASED PIXEL MATRIX ---
+        let currentGridSize = 8;
+        let matrixState = Array(64).fill(0);
+
+        function changeMatrixSize(newSize) {
+            if (newSize !== 8) {
+                triggerPremium(`${newSize}x${newSize} High-density Canvas Matrix arrays`, 'Pro');
+                return;
+            }
+            currentGridSize = newSize;
+            matrixState = Array(newSize * newSize).fill(0);
+            buildPixelGrid();
+        }
+
+        function buildPixelGrid() {
+            const gridContainer = document.getElementById('pixel-grid');
+            gridContainer.className = `grid gap-1 w-full max-w-sm aspect-square max-h-[320px] overflow-auto`;
+            gridContainer.style.gridTemplateColumns = `repeat(${currentGridSize}, minmax(0, 1fr))`;
+            gridContainer.innerHTML = '';
+            
+            for (let i = 0; i < currentGridSize * currentGridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = "w-full aspect-square bg-slate-900 border border-slate-800 rounded-sm cursor-pointer select-none transition-colors duration-100 hover:border-slate-600";
+                
+                cell.addEventListener('click', () => togglePixelState(i, cell));
+                cell.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    togglePixelState(i, cell);
+                }, { passive: false });
+                
+                gridContainer.appendChild(cell);
+            }
+            calculatePixelArrays();
+        }
+
+        function togglePixelState(index, element) {
+            matrixState[index] = matrixState[index] === 0 ? 1 : 0;
+            if (matrixState[index] === 1) {
+                element.classList.replace('bg-slate-900', 'bg-cyan-500');
+                element.classList.add('shadow-[0_0_8px_rgba(6,182,212,0.5)]');
+            } else {
+                element.classList.replace('bg-cyan-500', 'bg-slate-900');
+                element.classList.remove('shadow-[0_0_8px_rgba(6,182,212,0.5)]');
+            }
+            calculatePixelArrays();
+        }
+
+        function calculatePixelArrays() {
+            let cArray = [];
+            let binaryOutputStr = "";
+
+            for (let row = 0; row < currentGridSize; row++) {
+                let byteVal = 0;
+                let rowStr = "";
+                for (let col = 0; col < currentGridSize; col++) {
+                    const idx = (row * currentGridSize) + col;
+                    const bit = matrixState[idx];
+                    rowStr += bit ? "1" : "0";
+                    
+                    if (bit === 1 && col < 8) { // Standard serialization mapping boundary caps
+                        byteVal |= (1 << (7 - col));
+                    }
+                }
+                binaryOutputStr += rowStr + "\n";
+                cArray.push("0x" + byteVal.toString(16).toUpperCase().padStart(2, '0'));
+            }
+
+            document.getElementById('pixel-output-c').textContent = `static const uint8_t icon_bmp[] = { ${cArray.join(', ')} };`;
+            document.getElementById('pixel-output-bin').textContent = binaryOutputStr.trim();
+        }
+
+        function clearPixelMatrix() {
+            matrixState.fill(0);
+            document.querySelectorAll('#pixel-grid div').forEach(cell => {
+                cell.className = "w-full aspect-square bg-slate-900 border border-slate-800 rounded-sm cursor-pointer select-none transition-colors duration-100 hover:border-slate-600";
+            });
+            calculatePixelArrays();
+        }
+
+        // --- MODULE 4 ENGINE: ADAPTIVE SANDBOXED MERMAID COMPILER ---
+        let renderTimeout;
+        function compileFlowchart() {
+            clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                const target = document.getElementById('mermaid-render-target');
+                const rawInput = document.getElementById('mermaid-input').value;
+                
+                target.innerHTML = `<div class="text-xs text-slate-500 animate-pulse">Compiling dynamic structure maps...</div>`;
+                
+                try {
+                    const sandboxElement = document.createElement('div');
+                    const internalUniqueId = "mermaid-vector-" + Date.now();
+                    
+                    mermaid.render(internalUniqueId, rawInput, sandboxElement).then(({ svg }) => {
+                        target.innerHTML = svg;
+                    }).catch(err => {
+                        target.innerHTML = `<div class="text-xs text-rose-500 p-2 border border-rose-950 bg-rose-950/20 rounded-md max-w-full overflow-x-auto"><span class="font-bold">Syntax Parser Log:</span><br>${err.message || 'Invalid diagram construction syntax.'}</div>`;
+                    });
+                } catch (criticalErr) {
+                    target.innerHTML = `<div class="text-xs text-rose-400">Syntax evaluation buffer state...</div>`;
+                }
+            }, 400);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            buildPixelGrid();
+        });
+    </script>
+</body>
+</html>
